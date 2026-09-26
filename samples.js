@@ -1,9 +1,19 @@
-// LexAssist AI - Sample Contracts & Legal Documents Database
+// LexAssist AI - Problem Statement Aligned Legal Datasets & Use Case Models
+
+const PROBLEM_STATEMENT_USE_CASES = {
+  simplifier: "Simplifying complex legal documents into plain, 6th-grade English summaries.",
+  comparison: "Comparing contracts, agreements, or policies side-by-side with inconsistency detection.",
+  highlighter: "Highlighting important clauses, obligations, financial risks, or contract inconsistencies.",
+  qaAssistant: "Answering natural language questions based strictly on provided legal document context.",
+  nextSteps: "Helping users understand their legal options, remedies, and potential next steps.",
+  checklists: "Generating actionable summaries, negotiation checklists, and key deadline trackers.",
+  attorneyPrep: "Helping users prepare structured summaries and questions for a legal professional."
+};
 
 const SAMPLE_DOCUMENTS = {
   lease: {
     title: "Commercial Property Lease Agreement",
-    category: "Real Estate",
+    category: "Real Estate & Commercial Leases",
     content: `COMMERCIAL PROPERTY LEASE AGREEMENT
 
 This Commercial Lease Agreement ("Lease") is entered into as of January 15, 2026, by and between Apex Property Holdings LLC ("Landlord"), and Retail Concepts Inc. ("Tenant").
@@ -63,10 +73,22 @@ This Lease shall be governed by the laws of the State of Delaware. Any legal act
           suggestion: "Reduce geographic radius to 2-5 miles and duration to 6-12 months post-lease."
         }
       ],
-      jargon: [
-        { term: "Triple Net (NNN)", plain: "A lease where tenant pays rent PLUS taxes, insurance, and maintenance." },
-        { term: "Liquidated Damages", plain: "A predetermined cash penalty for breaking the contract." },
-        { term: "Restrictive Covenant", plain: "A legal promise that restricts what business activities you can do." }
+      nextSteps: [
+        "Step 1: Request an amendment removing tenant liability for structural foundation, roof leaks, and primary HVAC replacement.",
+        "Step 2: Propose an early termination break-clause (90 days notice + 3 months base rent penalty).",
+        "Step 3: Counter-propose a 3% CPI rent escalation cap in place of the rigid 8% compounding rate.",
+        "Step 4: Reduce the non-compete geographic radius from 25 miles to 3 miles."
+      ],
+      checklists: [
+        "Verify base rent schedule ($8,500/mo) vs projected Year 5 rate ($11,564/mo).",
+        "Inspect HVAC equipment condition and request Landlord warranty prior to signing.",
+        "Confirm Delaware governing law venue requirements with local legal counsel.",
+        "Document existing premises conditions with timestamped photographs before move-in."
+      ],
+      attorneyQuestions: [
+        "Is the 100% accelerated rent liquidated damages clause enforceable under Delaware commercial landlord-tenant law?",
+        "Can we insert a mandatory landlord duty to mitigate damages upon early tenant departure?",
+        "How can we legally structure the HVAC carve-out to limit tenant repair exposure to $1,500/year?"
       ]
     },
     compareWith: `COMMERCIAL PROPERTY LEASE AGREEMENT (REVISED STANDARD MODEL)
@@ -89,7 +111,7 @@ Tenant agrees not to open a directly competing location within a 3-mile radius d
 
   saas: {
     title: "Enterprise SaaS Master Services Agreement",
-    category: "Technology / Software",
+    category: "Technology & Software Contracts",
     content: `MASTER SERVICES AGREEMENT (SaaS)
 
 This Master Services Agreement ("Agreement") is between CloudCorp Systems Inc. ("Provider") and Customer.
@@ -124,37 +146,33 @@ Customer shall defend, indemnify, and hold harmless Provider against all third-p
           level: "CRITICAL",
           text: "In no event shall Provider's total aggregate liability exceed $100.00, regardless of cause",
           explanation: "If Provider suffers a security failure exposing sensitive data, your recovery is limited to $100, leaving you exposed to massive liability.",
-          suggestion: "Set liability cap to 12 months of fees paid, with an carve-out (uncapped or higher cap) for confidentiality breaches."
-        },
-        {
-          id: "r3",
-          clause: "Section 3: Unilateral 25% Auto-Renewal Price Hike",
-          level: "MEDIUM",
-          text: "increase annual fees by up to 25% upon renewal without prior advance notice",
-          explanation: "Price hikes can occur without warning, locking you into a 25% higher cost structure if you miss the 90-day cancellation window.",
-          suggestion: "Cap price increases at 5% per year and require 60 days advance written notice of any price change."
+          suggestion: "Set liability cap to 12 months of fees paid, with a carve-out for confidentiality breaches."
         }
       ],
-      jargon: [
-        { term: "Indemnification", plain: "Obligation to pay for the legal costs and damages suffered by another party." },
-        { term: "Perpetual License", plain: "A right granted forever that never expires." }
+      nextSteps: [
+        "Step 1: Require an explicit Data Processing Addendum (DPA) barring AI model training on customer data.",
+        "Step 2: Increase liability cap to 12x monthly recurring revenue (MRR) or $1,000,000 for data privacy breaches."
+      ],
+      checklists: [
+        "Calendar the 90-day auto-renewal cancellation deadline.",
+        "Verify SOC2 Type II compliance reports from Provider."
+      ],
+      attorneyQuestions: [
+        "Does the perpetual AI training license breach our existing customer confidentiality obligations?"
       ]
     },
-    compareWith: `MASTER SERVICES AGREEMENT (CUSTOMER-FAVORABLE FAIR MODEL)
+    compareWith: `MASTER SERVICES AGREEMENT (FAIR CUSTOMER MODEL)
 
 1. DATA PRIVACY & NO AI TRAINING
-Customer retains exclusive ownership of Customer Data. Provider shall NOT use Customer Data to train AI models or share with third parties.
+Customer retains exclusive ownership. Provider shall NOT train AI models on Customer Data.
 
-2. SERVICE LEVEL & BALANCED LIABILITY
-Provider guarantees 99.9% uptime. Provider liability capped at 12 months of subscription fees, except confidentiality & data breach breaches which are capped at $2,000,000.
-
-3. RENEWAL TERMS
-Subscription renews annually. Any price increases are capped at 5% with 60 days written notice. Cancellation permitted up to 30 days before renewal.`
+2. LIABILITY CAP
+Provider liability capped at 12 months of subscription fees ($1,000,000 cap for data breach).`
   },
 
   nda: {
     title: "Mutual Non-Disclosure Agreement (NDA)",
-    category: "Corporate / Legal",
+    category: "Corporate & Confidentiality",
     content: `MUTUAL NON-DISCLOSURE AGREEMENT
 
 This Mutual Non-Disclosure Agreement ("Agreement") is dated February 1, 2026, between Alpha Corp and Beta Solutions Inc.
@@ -184,25 +202,23 @@ Upon written request, the receiving party shall promptly return or certify destr
           suggestion: "If sharing highly sensitive source code or trade secrets, stipulate perpetual protection for trade secrets."
         }
       ],
-      jargon: [
-        { term: "Mutual NDA", plain: "An agreement protecting confidential info shared by BOTH parties equally." },
-        { term: "Trade Secret", plain: "Secret business information that provides a competitive edge." }
+      nextSteps: [
+        "Step 1: Execute standard agreement.",
+        "Step 2: Add trade secret exception for perpetual confidentiality if disclosing proprietary source code."
+      ],
+      checklists: [
+        "Ensure disclosures are marked 'Confidential' in writing within 30 days of verbal disclosure."
+      ],
+      attorneyQuestions: [
+        "Should we add a non-solicitation of employees clause to this mutual NDA?"
       ]
     },
-    compareWith: `UNILATERAL NON-DISCLOSURE AGREEMENT (STRICT DISCLOSER VERSION)
-
-1. CONFIDENTIAL INFORMATION
-Applies ONLY to disclosures made by Discloser. Receiving party provides no protected information under this agreement.
-
-2. DURATION
-Confidentiality obligations survive indefinitely (in perpetuity) for all trade secrets and 5 years for technical documentation.
-
-3. INJUNCTIVE RELIEF
-Discloser is entitled to immediate court injunction without posting bond in event of suspected breach.`
+    compareWith: `UNILATERAL NDA (STRICT VERSION)
+1. CONFIDENTIAL INFORMATION: Applies only to disclosures by Discloser.
+2. DURATION: Indefinite survival for trade secrets.`
   }
 };
 
-// Preset Clause Templates Generator Library
 const CLAUSE_TEMPLATES = [
   {
     id: "nda_mutual",
@@ -264,5 +280,5 @@ const CLAUSE_TEMPLATES = [
 ];
 
 if (typeof module !== 'undefined') {
-  module.exports = { SAMPLE_DOCUMENTS, CLAUSE_TEMPLATES };
+  module.exports = { PROBLEM_STATEMENT_USE_CASES, SAMPLE_DOCUMENTS, CLAUSE_TEMPLATES };
 }
