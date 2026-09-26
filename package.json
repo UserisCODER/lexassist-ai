@@ -1,0 +1,18 @@
+{
+  "name": "lexassist-ai",
+  "version": "1.0.0",
+  "description": "LexAssist AI - GenAI Legal Assistance & Access Platform for PromptWars",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx serve -l 8080 .",
+    "start": "npx serve -l 8080 ."
+  },
+  "keywords": [
+    "legal-ai",
+    "promptwars",
+    "genai",
+    "contracts"
+  ],
+  "author": "",
+  "license": "MIT"
+}
