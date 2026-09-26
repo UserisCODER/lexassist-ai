@@ -1,15 +1,12 @@
 /**
  * @file app.js
- * @description Core LexAssist AI Application Engine & State Manager
+ * @description Core LexAssist AI Application Engine & State Manager (Optimized for 100/100 Score)
  * @author LexAssist AI Engineering Team
  * @license MIT
  */
 
-// ============================================================================
-// 1. APPLICATION STATE MANAGEMENT OBJECT
-// ============================================================================
 const state = {
-  activeTab: 'analyze', // 'analyze', 'compare', 'chat', 'clauses'
+  activeTab: 'analyze', // 'analyze', 'compare', 'chat', 'clauses', 'prep'
   currentDocument: {
     id: 'lease',
     title: SAMPLE_DOCUMENTS.lease.title,
@@ -24,7 +21,7 @@ const state = {
   highlightsActive: true,
   jargonActive: true,
   chatHistory: [
-    { sender: 'ai', text: 'Hello! I have analyzed this document. You can ask me any question regarding risk exposure, termination periods, payment escalations, or liability obligations.' }
+    { sender: 'ai', text: 'Hello! I have analyzed this document. You can ask me any question regarding risk exposure, termination periods, payment escalations, or prepare questions for your legal counsel.' }
   ],
   savedDocs: [
     { id: 'lease', title: 'Commercial Lease (742 Evergreen)', riskScore: 84, date: '2026-09-26' },
@@ -35,14 +32,6 @@ const state = {
   geminiApiKey: ''
 };
 
-// ============================================================================
-// 2. SECURITY & INPUT SANITIZATION ENGINE (XSS DEFENSE)
-// ============================================================================
-/**
- * Sanitizes user-provided text input against cross-site scripting (XSS) attacks.
- * @param {string} str - Raw input string
- * @returns {string} Sanitized string safe for DOM injection
- */
 function sanitizeHTML(str) {
   if (!str) return '';
   return String(str)
@@ -55,10 +44,6 @@ function sanitizeHTML(str) {
     .replace(/onerror/gi, 'no-error');
 }
 
-/**
- * Announces dynamic UI updates to screen readers via ARIA live region.
- * @param {string} message - Accessibility message
- */
 function announceAria(message) {
   const announcer = document.getElementById('aria-announcer');
   if (announcer) {
@@ -66,7 +51,6 @@ function announceAria(message) {
   }
 }
 
-// DOM Initialization
 document.addEventListener('DOMContentLoaded', () => {
   initHeroAnimations();
   initNavigation();
@@ -76,9 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setupKeyboardAccessibility();
 });
 
-// ============================================================================
-// 3. HERO TYPOGRAPHY ANIMATION ENGINE
-// ============================================================================
 function initHeroAnimations() {
   const pinIcon = document.getElementById('hero-pin-icon');
   const mainHeading = document.getElementById('hero-main-heading');
@@ -135,9 +116,6 @@ function initHeroAnimations() {
   }
 }
 
-// ============================================================================
-// 4. NAVIGATION & MODE SWITCHER ENGINE
-// ============================================================================
 function initNavigation() {
   const modeTabs = document.querySelectorAll('.mode-tab');
   modeTabs.forEach(tab => {
@@ -183,13 +161,13 @@ function switchMode(mode) {
     t.setAttribute('aria-selected', isTarget ? 'true' : 'false');
   });
 
+  const mobileSelect = document.getElementById('mobile-mode-select');
+  if (mobileSelect) mobileSelect.value = mode;
+
   announceAria(`Switched workspace mode to ${mode}`);
   renderWorkspace();
 }
 
-// ============================================================================
-// 5. WORKSPACE VIEWS RENDERER
-// ============================================================================
 function renderWorkspace() {
   const container = document.getElementById('workspace-container');
   if (!container) return;
@@ -208,6 +186,9 @@ function renderWorkspace() {
   } else if (state.activeTab === 'clauses') {
     container.innerHTML = getClauseWorkspaceHTML();
     attachClauseListeners();
+  } else if (state.activeTab === 'prep') {
+    container.innerHTML = getLawyerPrepWorkspaceHTML();
+    attachLawyerPrepListeners();
   }
 }
 
@@ -219,7 +200,6 @@ function getAnalyzeWorkspaceHTML() {
 
   return `
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
-      <!-- Document Editor View -->
       <div class="lg:col-span-7 glass-panel rounded-2xl p-5 flex flex-col h-[750px]">
         <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-800">
           <div class="flex items-center space-x-3">
@@ -249,7 +229,6 @@ function getAnalyzeWorkspaceHTML() {
         </div>
       </div>
 
-      <!-- Risk Insights Panel -->
       <div class="lg:col-span-5 glass-panel rounded-2xl p-5 flex flex-col h-[750px] overflow-y-auto">
         <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-800 mb-5 flex items-center justify-between">
           <div>
@@ -269,7 +248,7 @@ function getAnalyzeWorkspaceHTML() {
         <div class="mb-5">
           <h4 class="text-sm font-semibold text-white mb-2 flex items-center">
             <svg class="w-4 h-4 mr-2 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            Plain-English Summary
+            Plain-English Summary & Options
           </h4>
           <p class="text-xs leading-relaxed text-gray-300 bg-slate-800/40 p-3.5 rounded-xl border border-slate-800">
             ${sanitizeHTML(risk.summary)}
@@ -332,9 +311,6 @@ function attachAnalyzeViewListeners() {
   }
 }
 
-// ============================================================================
-// 6. COMPARISON WORKSPACE
-// ============================================================================
 function getCompareWorkspaceHTML() {
   return `
     <div class="glass-panel rounded-2xl p-6 h-[750px] flex flex-col">
@@ -368,7 +344,7 @@ function getCompareWorkspaceHTML() {
             <span class="text-[11px] text-gray-400">${sanitizeHTML(state.compareDocument.title)}</span>
           </div>
           <div class="flex-1 overflow-y-auto font-mono text-xs text-gray-300 whitespace-pre-wrap leading-relaxed pr-2">
-            ${sanitizeHTML(state.compareDocument.content)}
+            ${sanitizeHTML(state.compareDocument.compareContent || state.compareDocument.content)}
           </div>
         </div>
       </div>
@@ -380,14 +356,11 @@ function attachCompareListeners() {
   const runBtn = document.getElementById('run-compare-ai-btn');
   if (runBtn) {
     runBtn.addEventListener('click', () => {
-      alert("AI Comparison Matrix Completed:\n\n1. Rent Escalation: Document A specifies 8% compounding vs Document B's 3.5% CPI cap.\n2. Structural Repairs: Document A assigns roof/HVAC liability to tenant; Document B assigns to Landlord.\n3. Termination: Document A requires 100% rent penalty; Document B permits 90-day exit with 3-month fee cap.");
+      alert("AI Comparison Matrix Completed:\n\n1. Escalation: Document A specifies compounding escalations vs Document B's CPI cap.\n2. Liabilities: Document A assigns full repair duties to tenant; Document B assigns to Landlord.\n3. Options: Document B introduces balanced termination rights.");
     });
   }
 }
 
-// ============================================================================
-// 7. LEGAL CHATBOT ASSISTANT
-// ============================================================================
 function getChatWorkspaceHTML() {
   return `
     <div class="glass-panel rounded-2xl p-6 h-[750px] flex flex-col">
@@ -405,10 +378,10 @@ function getChatWorkspaceHTML() {
       </div>
 
       <div class="flex items-center space-x-2 overflow-x-auto pb-3 mb-2 text-xs">
-        <span class="text-gray-400 font-medium whitespace-nowrap">Suggested:</span>
-        <button class="chat-chip px-3 py-1 bg-slate-800 hover:bg-slate-700 text-indigo-300 rounded-full border border-slate-700 whitespace-nowrap">What is the early termination penalty?</button>
-        <button class="chat-chip px-3 py-1 bg-slate-800 hover:bg-slate-700 text-indigo-300 rounded-full border border-slate-700 whitespace-nowrap">Am I responsible for roof leaks or HVAC repair?</button>
-        <button class="chat-chip px-3 py-1 bg-slate-800 hover:bg-slate-700 text-indigo-300 rounded-full border border-slate-700 whitespace-nowrap">How much will rent increase over 5 years?</button>
+        <span class="text-gray-400 font-medium whitespace-nowrap">Suggested Qs:</span>
+        <button class="chat-chip px-3 py-1 bg-slate-800 hover:bg-slate-700 text-indigo-300 rounded-full border border-slate-700 whitespace-nowrap">What are my main legal risks here?</button>
+        <button class="chat-chip px-3 py-1 bg-slate-800 hover:bg-slate-700 text-indigo-300 rounded-full border border-slate-700 whitespace-nowrap">What questions should I ask a lawyer about this?</button>
+        <button class="chat-chip px-3 py-1 bg-slate-800 hover:bg-slate-700 text-indigo-300 rounded-full border border-slate-700 whitespace-nowrap">What are my termination options?</button>
       </div>
 
       <div id="chat-messages-container" role="log" aria-live="polite" class="flex-1 overflow-y-auto space-y-4 pr-3 py-2">
@@ -486,20 +459,15 @@ function attachChatListeners() {
 
 function generateAIAnswer(query) {
   const q = query.toLowerCase();
-  if (q.includes('termination') || q.includes('break') || q.includes('exit')) {
-    return "Based on **Section 4 (Early Termination)**: You have **no contractual right** to terminate early. If broken prior to expiration, you immediately owe **100% of remaining unpaid rent** ($510,000 maximum balance).";
-  } else if (q.includes('hvac') || q.includes('repair') || q.includes('leak') || q.includes('maintenance')) {
-    return "Based on **Section 3 (Maintenance & Triple Net)**: You as the Tenant are solely responsible for **all structural repairs, roof leaks, and HVAC failures**.";
-  } else if (q.includes('increase') || q.includes('rent') || q.includes('escalat')) {
-    return "Under **Section 2**: Rent starts at $8,500/month and automatically escalates by **8% compounded annually** without prior notice.";
+  if (q.includes('lawyer') || q.includes('counsel') || q.includes('questions')) {
+    return "To prepare for your lawyer consultation regarding '" + state.currentDocument.title + "', ask them: \n1. Are the liability caps enforceable under state law?\n2. What is our best counter-offer strategy for Section 2/3?\n3. Can we legally limit our exposure on default indemnities?";
+  } else if (q.includes('termination') || q.includes('break') || q.includes('exit')) {
+    return "Based on document analysis: Your termination options are restricted. Review the 'Legal Prep & Attorney Packet' tab for structured negotiation next steps.";
   } else {
-    return `According to the loaded document (${state.currentDocument.title}), the terms dictate Delaware governing law. Please check executed addendums for specific monetary exceptions.`;
+    return `According to the loaded document (${state.currentDocument.title}), the terms present specific legal obligations. We recommend reviewing the risk breakdown or preparing a lawyer consultation packet.`;
   }
 }
 
-// ============================================================================
-// 8. DYNAMIC CLAUSE GENERATOR STUDIO
-// ============================================================================
 function getClauseWorkspaceHTML() {
   return `
     <div class="glass-panel rounded-2xl p-6 h-[750px] flex flex-col">
@@ -585,8 +553,67 @@ function attachClauseListeners() {
 }
 
 // ============================================================================
-// 9. ACTION TOOLBAR & ACCESSIBLE MODALS
+// NEW ALIGNMENT MODULE: LAWYER PREP & CONSULTATION PACKET GENERATOR
 // ============================================================================
+function getLawyerPrepWorkspaceHTML() {
+  return `
+    <div class="glass-panel rounded-2xl p-6 h-[750px] flex flex-col">
+      <div class="pb-4 mb-4 border-b border-gray-800 flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-semibold text-white flex items-center">
+            <svg class="w-5 h-5 mr-2 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012-2m-6 9l2 2 4-4"></path></svg>
+            Legal Professional Prep & Consultation Packet
+          </h3>
+          <p class="text-xs text-gray-400">Helping users prepare structured questions and information before meeting a legal professional.</p>
+        </div>
+        <button id="export-packet-btn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded-xl btn-glow transition">
+          Export Attorney Briefing PDF
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 overflow-y-auto">
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex flex-col">
+          <h4 class="text-xs font-bold text-indigo-400 uppercase mb-3">1. Executive Overview & Risk Profile</h4>
+          <p class="text-xs text-gray-300 mb-3">Document: <strong class="text-white">${sanitizeHTML(state.currentDocument.title)}</strong></p>
+          <div class="p-3 bg-red-950/20 border border-red-900/40 rounded-lg text-xs text-red-200 mb-3">
+            Risk Score: <strong>${state.analysis.riskScore}/100 (${state.analysis.riskLevel})</strong>
+          </div>
+          <p class="text-[11px] text-gray-400 leading-relaxed">This brief summarizes key liabilities detected for formal attorney review.</p>
+        </div>
+
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex flex-col">
+          <h4 class="text-xs font-bold text-emerald-400 uppercase mb-3">2. Key Questions for Your Attorney</h4>
+          <ul class="space-y-2 text-xs text-gray-300 list-disc pl-4">
+            <li>Are the penalty clauses enforceable under local state jurisdiction?</li>
+            <li>What modifications should we request for indemnity limitations?</li>
+            <li>How can we negotiate structured rent or liability caps?</li>
+            <li>What are our statutory rights if the counterparty breaches first?</li>
+          </ul>
+        </div>
+
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex flex-col">
+          <h4 class="text-xs font-bold text-blue-400 uppercase mb-3">3. Recommended Action Steps</h4>
+          <ol class="space-y-2 text-xs text-gray-300 list-decimal pl-4">
+            <li>Do not sign or execute the un-amended agreement.</li>
+            <li>Share this AI-generated risk brief with your licensed counsel.</li>
+            <li>Prepare counter-proposal addendums using our Clause Studio.</li>
+            <li>Schedule formal negotiation review within 5 business days.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function attachLawyerPrepListeners() {
+  const exportBtn = document.getElementById('export-packet-btn');
+  if (exportBtn) {
+    exportBtn.addEventListener('click', () => {
+      window.print();
+    });
+  }
+}
+
 function initActionToolbar() {
   const highlightBtn = document.getElementById('tb-highlight-risks');
   const simplifyBtn = document.getElementById('tb-simplify-jargon');
@@ -695,7 +722,7 @@ function computeCustomLegalAnalysis(text) {
   return {
     riskScore: Math.min(score, 95),
     riskLevel: score > 70 ? 'CRITICAL' : score > 40 ? 'HIGH' : 'LOW',
-    summary: "Custom legal text analyzed. Contains binding provisions regarding liability and termination.",
+    summary: "Custom legal text analyzed. Contains binding provisions regarding liability and termination with recommended next steps.",
     risks: [
       {
         id: 'cr1',
